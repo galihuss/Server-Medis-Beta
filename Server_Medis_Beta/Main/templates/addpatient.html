@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a New Patient</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Add a New Patient</h1>
+    <form id="patientForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br><br>
+
+        <label for="kelamin">Gender:</label>
+        <select id="kelamin" name="kelamin" required>
+            <option value="0">Perempuan</option>
+            <option value="1">Laki-laki</option>
+            <option value="2">Non-biner</option>
+        </select>
+        <br><br>
+
+        <label for="tanggal_lahir">Date of Birth:</label>
+        <input type="date" id="tanggal_lahir" name="tanggal_lahir" required>
+        <br><br>
+
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" id="phone_number" name="phone_number" maxlength="15" required>
+        <br><br>
+
+        <label for="alamat">Address:</label>
+        <textarea id="alamat" name="alamat" rows="4" cols="50"></textarea>
+        <br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('patientForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Collect form data
+            const formData = {
+                name: document.getElementById('name').value,
+                kelamin: document.getElementById('kelamin').value,
+                tanggal_lahir: document.getElementById('tanggal_lahir').value,
+                phone_number: document.getElementById('phone_number').value,
+                alamat: document.getElementById('alamat').value,
+            };
+
+            // Replace <your_token> with the actual token
+            const token = '2eca41abcd5c0d04cdf0cf3dfd8f2de46b877a31';
+
+            // Send POST request using Axios
+            axios.post('/api/patients/', formData, {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                alert('Patient added successfully!');
+                console.log(response.data);
+            })
+            .catch(error => {
+                alert('Failed to add patient. Please check the console for details.');
+                console.error(error);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Data Pasien - ♕ Medis Vendor Beta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #000002 0%, #6EA2DF 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto bg-white shadow-md rounded-lg p-6">
+        <header class="bg-[#6EA2DF] text-white p-6 rounded-t-lg">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Pasien Terdaftar</h1>
+            </div>
+        </header>
+     
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-5">
+
+        </div>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-4">
+            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
+                <button class="w-full md:w-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                    <i class="mr-2"></i>Tambah Pasien
+                </button>
+                <button id="deleteSelected" class="w-full md:w-auto bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                    <i class="mr-2"></i>Hapus Pasien
+                </button>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" action="{% url 'logout' %}" class="w-full md:w-auto bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                        <i class="mr-2"></i>Logout
+                    </button>
+                </form>
+            </div>
+            
+            <div class="text-gray-600 self-start md:self-center">
+                Total Pasien: {{ patients.count }}
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border p-2 w-12">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                        </th>
+                        <th class="border p-2">No</th>
+                        <th class="border p-2">Nama</th>
+                        <th class="border p-2 hidden md:table-cell">Jenis Kelamin</th>
+                        <th class="border p-2 hidden md:table-cell">Tanggal Lahir</th>
+                        <th class="border p-2 hidden md:table-cell">Nomor Telepon</th>
+                        <th class="border p-2 hidden md:table-cell">Alamat</th>
+                        <th class="border p-2">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="border p-2 text-center">
+                            <input type="checkbox" class="select-patient" data-patient-id="{{ patient.patient_id }}">
+                        </td>
+                        <td class="border p-2">{{ patient.patient_id }}</td>
+                        <td class="border p-2"><a href="{% url 'patient-dashboard' patient.patient_id %}">{{ patient.name }}</a></td>
+                        <td class="border p-2 hidden md:table-cell">{{ patient.get_kelamin_display }}</td>
+                        <td class="border p-2 hidden md:table-cell">{{ patient.tanggal_lahir }}</td>
+                        <td class="border p-2 hidden md:table-cell">{{ patient.phone_number }}</td>
+                        <td class="border p-2 hidden md:table-cell">{{ patient.alamat }}</td>
+                        <td class="border p-2">
+                            <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 edit-patient-button" data-patient-id="{{ patient.patient_id }}">Edit</button>
+                        </td>
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
+            <button class="w-full md:w-auto bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">← Sebelumnya</button>
+            <span class="self-center">1</span>
+            <button class="w-full md:w-auto bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Selanjutnya →</button>
+        </div>
+    </div>
+
+    <!-- Pop-up Form for Adding Patients -->
+    <div id="addPatientModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-[#6EA2DF] p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-xl text-white font-bold shadow-2xl mb-4">Tambah Pasien</h2>
+            <form id="addPatientForm" method="POST" action="/api/patients/">
+                <div class="mb-4">
+                    <label for="name" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Nama</label>
+                    <input type="text" id="name" name="name" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="kelamin" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Jenis Kelamin</label>
+                    <select id="kelamin" name="kelamin" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="0">Perempuan</option>
+                        <option value="1">Laki-laki</option>
+                        <option value="2">Non-biner</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="tanggal_lahir" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Tanggal Lahir</label>
+                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="phone_number" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Nomor Telepon</label>
+                    <input type="text" id="phone_number" name="phone_number" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="alamat" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Alamat</label>
+                    <textarea id="alamat" name="alamat" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelButton" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Batal</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pop-up Form for Editing Patients -->
+    <div id="editPatientModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-[#6EA2DF] p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-xl text-white font-bold shadow-2xl mb-4">Edit Pasien</h2>
+            <form id="editPatientForm" method="POST">
+                <div class="mb-4">
+                    <label for="edit_name" class="block text-sm text-white shadow-2xl font-medium text-gray-700">Nama</label>
+                    <input type="text" id="edit_name" name="name" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="edit_kelamin" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Jenis Kelamin</label>
+                    <select id="edit_kelamin" name="kelamin" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="0">Perempuan</option>
+                        <option value="1">Laki-laki</option>
+                        <option value="2">Non-biner</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="edit_tanggal_lahir" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Tanggal Lahir</label>
+                    <input type="date" id="edit_tanggal_lahir" name="tanggal_lahir" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="edit_phone_number" class="block text-sm text-white font-medium shadow-2xl text-gray-700">Nomor Telepon</label>
+                    <input type="text" id="edit_phone_number" name="phone_number" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="edit_alamat" class="block text-sm text-white shadow-2xl font-medium shadow-2xl text-gray-700">Alamat</label>
+                    <textarea id="edit_alamat" name="alamat" class="mt-1 block w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelEditButton" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Batal</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pop-up Confirmation for Deleting Patients -->
+    <div id="deleteConfirmationModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
+            <p>yakin nih dek?</p>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button id="cancelDeleteButton" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Batal</button>
+                <button id="confirmDeleteButton" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to handle pop-up visibility
+        const addPatientButton = document.querySelector('.bg-green-500');
+        const addPatientModal = document.getElementById('addPatientModal');
+        const cancelButton = document.getElementById('cancelButton');
+        const addPatientForm = document.getElementById('addPatientForm');
+
+        addPatientButton.addEventListener('click', () => {
+            addPatientModal.classList.remove('hidden');
+        });
+
+        cancelButton.addEventListener('click', () => {
+            addPatientModal.classList.add('hidden');
+        });
+
+        addPatientForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(addPatientForm);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const token = '2eca41abcd5c0d04cdf0cf3dfd8f2de46b877a31'; // Retrieve token from local storage or other secure storage
+                const response = await fetch('/api/patients/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    addPatientModal.classList.add('hidden');
+                    location.reload(); // Reload the page to show the updated list
+                } else {
+                    const errorData = await response.json();
+                    alert(`Gagal menambahkan pasien: ${errorData.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                alert(`Terjadi kesalahan: ${error.message}`);
+            }
+        });
+
+        // JavaScript to handle edit functionality
+        const editPatientButtons = document.querySelectorAll('.edit-patient-button');
+        const editPatientModal = document.getElementById('editPatientModal');
+        const cancelEditButton = document.getElementById('cancelEditButton');
+        const editPatientForm = document.getElementById('editPatientForm');
+
+        let currentPatientId = null;
+
+        editPatientButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                currentPatientId = button.getAttribute('data-patient-id');
+
+                try {
+                    const token = '2eca41abcd5c0d04cdf0cf3dfd8f2de46b877a31'; // Replace with actual token
+                    const response = await fetch(`/api/patients/${currentPatientId}/`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Token ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const patientData = await response.json();
+
+                        // Populate form fields
+                        document.getElementById('edit_name').value = patientData.name;
+                        document.getElementById('edit_kelamin').value = patientData.kelamin;
+                        document.getElementById('edit_tanggal_lahir').value = patientData.tanggal_lahir;
+                        document.getElementById('edit_phone_number').value = patientData.phone_number;
+                        document.getElementById('edit_alamat').value = patientData.alamat;
+
+                        // Show modal
+                        editPatientModal.classList.remove('hidden');
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Gagal mengambil data pasien: ${errorData.message || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    alert(`Terjadi kesalahan: ${error.message}`);
+                }
+            });
+        });
+
+        cancelEditButton.addEventListener('click', () => {
+            editPatientModal.classList.add('hidden');
+        });
+
+        editPatientForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(editPatientForm);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const token = '2eca41abcd5c0d04cdf0cf3dfd8f2de46b877a31'; // Replace with actual token
+                const response = await fetch(`/api/patients/${currentPatientId}/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    editPatientModal.classList.add('hidden');
+                    location.reload(); // Reload the page to show the updated list
+                } else {
+                    const errorData = await response.json();
+                    alert(`Gagal memperbarui pasien: ${errorData.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                alert(`Terjadi kesalahan: ${error.message}`);
+            }
+        });
+
+        // JavaScript to handle select all functionality
+        function toggleSelectAll(source) {
+            const checkboxes = document.querySelectorAll('.select-patient');
+            checkboxes.forEach(checkbox => checkbox.checked = source.checked);
+        }
+
+        // JavaScript to handle delete functionality
+        const deleteButton = document.getElementById('deleteSelected');
+        const deleteConfirmationModal = document.getElementById('deleteConfirmationModal');
+        const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+
+        let selectedPatientIds = [];
+
+        deleteButton.addEventListener('click', () => {
+            const selectedCheckboxes = document.querySelectorAll('.select-patient:checked');
+            selectedPatientIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-patient-id'));
+
+            if (selectedPatientIds.length === 0) {
+                alert('Tidak ada pasien yang dipilih untuk dihapus.');
+                return;
+            }
+
+            // Show confirmation modal
+            deleteConfirmationModal.classList.remove('hidden');
+        });
+
+        cancelDeleteButton.addEventListener('click', () => {
+            // Hide confirmation modal
+            deleteConfirmationModal.classList.add('hidden');
+        });
+
+        confirmDeleteButton.addEventListener('click', async () => {
+            try {
+                const token = '2eca41abcd5c0d04cdf0cf3dfd8f2de46b877a31'; // Replace with actual token
+                for (const id of selectedPatientIds) {
+                    const response = await fetch(`/api/patients/${id}/`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Token ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        alert(`Gagal menghapus pasien ID ${id}: ${errorData.message || 'Unknown error'}`);
+                    }
+                }
+
+                location.reload(); // Reload the page to show the updated list
+            } catch (error) {
+                alert(`Terjadi kesalahan: ${error.message}`);
+            } finally {
+                // Hide confirmation modal
+                deleteConfirmationModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

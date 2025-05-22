@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ♕ Medis Vendor Beta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #000002 0%, #6EA2DF 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-[#6EA2DF] text-white p-6 rounded-t-lg">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">♕ Medis Vendor Beta</h1>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm">Pasien atas nama</p>
+                        <p class="font-semibold">{{ patient.name }}</p>
+                    </div>
+                    <a href="{% url 'patient-info' %}">
+                        <button class="bg-white text-[rgb(79,70,229)] border border-white font-bold px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 01-4.02-3.773l-.295-.897a2 2 0 00-1.882-1.379H6.414a2 2 0 00-1.902 1.441c-.433 1.619-.434 3.317 0 4.936a2 2 0 001.902 1.441h1.714a2 2 0 001.881-1.378l.296-.898a6 6 0 014.019-3.773l2.387-.477a2 2 0 001.022-.547l3.043-3.043a2 2 0 000-2.827l-.727-.728a2 2 0 00-2.828 0l-3.043 3.043z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.586 3.586a2 2 0 012.828 0l3.043 3.043a2 2 0 010 2.828l-3.043 3.043a2 2 0 01-2.828 0l-3.043-3.043a2 2 0 010-2.828l3.043-3.043z"/>
+                            </svg>
+                            <span>Kembali ke Daftar Pasien</span>
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </header>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Berat Badan -->
+            <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                <h2 class="text-xl font-semibold mb-4">Berat Badan</h2>
+                <div class="text-4xl font-bold text-blue-600 mb-4">{{ patient.readings.last.berat }} kg</div>
+                <p class="text-gray-600">Berat badan terkini</p>
+            </div>
+
+            <!-- Tinggi Badan -->
+            <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                <h2 class="text-xl font-semibold mb-4">Tinggi Badan</h2>
+                <div class="text-4xl font-bold text-green-600 mb-4">{{ patient.readings.last.tinggi }} cm</div>
+                <p class="text-gray-600">Tinggi badan terkini</p>
+            </div>
+
+            <!-- BMI -->
+            <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                <h2 class="text-xl font-semibold mb-4">Indeks Massa Tubuh</h2>
+                <div class="text-4xl font-bold text-purple-600 mb-4">
+                    {{ bmi|floatformat:2 }}
+                </div>
+                <p class="text-gray-600">BMI terkini</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <!-- Warna Urin -->
+            <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                <h2 class="text-xl font-semibold mb-4">Warna Urin</h2>
+                <div class="text-4xl font-bold text-yellow-600 mb-4">
+                    {{ patient.readings.last.get_urine_display }}
+                </div>
+                <p class="text-gray-600">Hidrasi Baik</p>
+                <p class="text-sm text-gray-500 mt-2">Asupan Cairan Optimal</p>
+            </div>
+
+            <!-- Kadar Alkohol -->
+            <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                <h2 class="text-xl font-semibold mb-4">Kadar Alkohol</h2>
+                <div class="text-4xl font-bold text-orange-600 mb-4">{{ patient.readings.last.alcohol }} ppm</div>
+                <p class="text-gray-600">Batas Aman</p>
+                <p class="text-sm text-gray-500 mt-2">Tidak Berisiko</p>
+            </div>
+
+            <!-- Suhu Tubuh -->
+            <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                <h2 class="text-xl font-semibold mb-4">Suhu Tubuh</h2>
+                <div class="text-4xl font-bold text-red-600 mb-4">{{ patient.readings.last.temperature }} °C</div>
+                <p class="text-gray-600">Di Bawah Normal</p>
+                <p class="text-sm text-gray-500 mt-2">Periksa Tiroid</p>
+            </div>
+        </div>
+    <!-- Kontainer Tombol Steril -->
+    <div class="mt-8 text-center">
+        <div class="mt-8 text-center">
+            <button 
+                onclick="assignNode()" 
+                class="bg-[#0FB66B] text-white px-8 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                
+            >
+                Baca Data Pasien
+            </button>
+        </div>
+        <div class="mt-4 text-center">
+            <p id="countdown" class="text-xl font-semibold text-gray-700"></p>
+        </div>
+        <div class="mt-8 text-center">
+            <button 
+                onclick="downloadPatientDataAsPDF()" 
+                class="fixed bottom-6 right-6 bg-[#6EA2DF] text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition-colors z-50"
+            >
+                Download Data (PDF)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function fetchLatestReadings() {
+            fetch(window.location.href, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Update the relevant sections of the page
+                document.querySelector('.text-blue-600').textContent = doc.querySelector('.text-blue-600').textContent;
+                document.querySelector('.text-green-600').textContent = doc.querySelector('.text-green-600').textContent;
+                document.querySelector('.text-purple-600').textContent = doc.querySelector('.text-purple-600').textContent;
+                document.querySelector('.text-yellow-600').textContent = doc.querySelector('.text-yellow-600').textContent;
+                document.querySelector('.text-orange-600').textContent = doc.querySelector('.text-orange-600').textContent;
+                document.querySelector('.text-red-600').textContent = doc.querySelector('.text-red-600').textContent;
+            })
+            .catch(error => {
+                console.error('Error fetching latest readings:', error);
+            });
+        }
+
+        // Refresh data every 5 seconds
+        setInterval(fetchLatestReadings, 1000);
+
+        function startCountdown() {
+            let timeLeft = 10;
+            const countdownElement = document.getElementById('countdown');
+
+            const timer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    countdownElement.textContent = ""; // Clear the timer text
+                } else {
+                    countdownElement.textContent = `Pe-ro-ce-cing, tunggu ${timeLeft} detik yah`;
+                    timeLeft -= 1;
+                }
+            }, 1000);
+        }
+
+        function assignNode() {
+            startCountdown(); // Start the countdown timer
+
+            fetch("{% url 'assign-node' patient_id=patient.patient_id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    async function downloadPatientDataAsPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.setTextColor(79, 70, 229);
+        doc.text('Medis Vendor Beta', 105, 30, { align: 'center' });
+        doc.setFontSize(11);
+        doc.setTextColor(60, 60, 60);
+        doc.text('Jl. Kesehatan No. 123, Kota Medika, Indonesia', 105, 37, { align: 'center' });
+        doc.setDrawColor(79, 70, 229);
+        doc.line(20, 40, 190, 40); // garis horizontal pemisah
+
+        // Data pasien dan bacaan terakhir
+        const patientData = {
+            name: "{{ patient.name }}",
+            kelamin: "{{ patient.get_kelamin_display }}",
+            tanggal_lahir: "{{ patient.tanggal_lahir }}",
+            phone_number: "{{ patient.phone_number }}",
+            alamat: "{{ patient.alamat }}",
+            readings: {
+                timestamp: "{{ patient.readings.last.timestamp }}",
+                berat: "{{ patient.readings.last.berat }}",
+                tinggi: "{{ patient.readings.last.tinggi }}",
+                bmi: "{{ bmi|floatformat:2 }}",
+                urine: "{{ patient.readings.last.get_urine_display }}",
+                alcohol: "{{ patient.readings.last.alcohol }}",
+                temperature: "{{ patient.readings.last.temperature }}"
+            }
+        };
+
+        // Format tanggal dari timestamp
+        let tanggalPengecekan = '';
+        if (patientData.readings.timestamp) {
+            // Coba parse dengan Date
+            const dateObj = new Date(patientData.readings.timestamp);
+            if (!isNaN(dateObj)) {
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                tanggalPengecekan = `${day}-${month}-${year}`;
+            } else {
+                tanggalPengecekan = patientData.readings.timestamp.replace(/\\|\//g, '-'); // fallback
+            }
+        }
+
+        // Tambahkan judul
+        doc.setFontSize(16);
+
+        // Tambahkan tabel untuk data pasien
+        doc.autoTable({
+            startY: 45,
+            head: [['Data Pasien','']],
+            body: [
+                ['Nama', patientData.name],
+                ['Jenis Kelamin', patientData.kelamin],
+                ['Tanggal Lahir', patientData.tanggal_lahir],
+                ['Nomor Telepon', patientData.phone_number],
+                ['Alamat', patientData.alamat]
+            ],
+            styles: { fontSize: 10, cellPadding: 3 },
+            headStyles: { fillColor: [79, 70, 229] }
+        });
+
+        // Tambahkan tabel untuk bacaan terakhir
+        doc.autoTable({
+            startY: doc.lastAutoTable.finalY + 15,
+            head: [['Timestamp', 'Berat Badan (kg)', 'Tinggi Badan (cm)', 'BMI', 'Warna Urin', 'Kadar Alkohol (ppm)', 'Suhu Tubuh (°C)']],
+            body: [[
+                patientData.readings.timestamp,
+                patientData.readings.berat,
+                patientData.readings.tinggi,
+                patientData.readings.bmi,
+                patientData.readings.urine,
+                patientData.readings.alcohol,
+                patientData.readings.temperature
+            ]],
+            styles: { fontSize: 10, cellPadding: 3 },
+            headStyles: { fillColor: [79, 70, 229] }
+        });
+
+        // Simpan file PDF dengan nama yang mengandung tanggal pengecekan
+        // Tambahkan kolom tanda tangan di pojok kanan bawah
+        doc.setFontSize(12);
+        doc.setTextColor(60, 60, 60);
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        doc.text('Hormat Kami,', pageWidth - 60, pageHeight - 40);
+        doc.text('Dr. Valen Fatli', pageWidth - 60, pageHeight - 30);
+        doc.line(pageWidth - 80, pageHeight - 45, pageWidth - 20, pageHeight - 45); // garis untuk tanda tangan
+        doc.save(`Data_Pasien_${patientData.name}_${tanggalPengecekan}.pdf`);
+    }
+</script>
+</body>
+</html>

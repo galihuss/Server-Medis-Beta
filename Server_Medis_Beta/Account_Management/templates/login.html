@@ -1,0 +1,49 @@
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ♕ Medis Vendor Beta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles untuk tambahan estetika */
+        body {
+            background: linear-gradient(135deg, #000002 0%, #6EA2DF 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-indigo-600 text-white text-center py-6">
+            <h1 class="text-3xl font-bold">♕ Medis Vendor Beta</h1>
+            <p class="mt-2 text-indigo-100">Staff Login</p>
+        </div>
+        
+        <form method="post" class="p-6 space-y-6">
+            {% csrf_token %}
+            <div>
+                <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                {{ form.username }}
+            </div>
+            <div>
+                <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                {{ form.password }}
+            </div>
+            
+            <button 
+                type="submit" 
+                class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+            >
+                Masuk
+            </button>
+            
+            <div class="text-center text-xs text-gray-500 pt-4">
+                <p>Dengan melanjutkan, Anda menyetujui Persyaratan Layanan dan menyatakan bahwa Anda telah membaca Kebijakan Privasi kami.</p>
+            </div>
+        </form>
+        
+        <div class="bg-gray-100 text-center py-4 text-sm text-gray-600">
+            &copy; 2025 RS Valen Sejahtera
+        </div>
+    </div>
+</body>
+{% endblock %}
